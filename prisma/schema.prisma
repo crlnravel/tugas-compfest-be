@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  nama       String
+  bio        String
+  saldo      Float
+  role       ROLE
+  toko       Toko[]
+  keranjang  Keranjang?
+}
+
+enum ROLE {
+  PEMBELI
+  PENJUAL
+}
+
+model Toko {
+  id        Int       @id @default(autoincrement())
+  nama      String
+  deskripsi String
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  makanan   Makanan[]
+}
+
+model Makanan {
+  id         Int         @id @default(autoincrement())
+  nama       String
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  harga      Float
+  stok       Int
+  deskripsi  String
+  toko       Toko        @relation(fields: [tokoId], references: [id])
+  tokoId     Int
+  keranjang  Keranjang[]
+}
+
+model Keranjang {
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int       @unique
+  makanan    Makanan[]
+}
